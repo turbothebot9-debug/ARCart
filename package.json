@@ -1,0 +1,24 @@
+{
+  "name": "arcart",
+  "version": "0.1.0",
+  "description": "AR shopping app - pick up items, auto-add to cart, walk out and pay",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "train": "node ml-training/train.js"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "^4.17.0",
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow-models/mobilenet": "^2.1.1",
+    "aframe": "^1.5.0",
+    "quagga": "^0.12.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "author": "Turbo",
+  "license": "MIT"
+}

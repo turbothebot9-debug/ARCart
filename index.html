@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARCart - Smart Shopping</title>
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <!-- Camera Feed -->
+  <div id="camera-container">
+    <video id="camera-feed" autoplay playsinline></video>
+    <canvas id="detection-canvas"></canvas>
+  </div>
+
+  <!-- AR Overlay UI -->
+  <div id="ar-overlay">
+    <!-- Cart Summary (top right) -->
+    <div id="cart-summary">
+      <span id="cart-icon">🛒</span>
+      <span id="cart-count">0</span>
+      <div id="cart-total">$0.00</div>
+    </div>
+
+    <!-- Detection Popup (center, shows when item detected) -->
+    <div id="detection-popup" class="hidden">
+      <div id="detected-product-image"></div>
+      <div id="detected-product-info">
+        <div id="detected-product-name">Product Name</div>
+        <div id="detected-product-price">$0.00</div>
+        <div id="detected-product-status">✓ Added to cart</div>
+      </div>
+    </div>
+
+    <!-- Cart Drawer (slides up from bottom) -->
+    <div id="cart-drawer" class="hidden">
+      <div id="cart-header">
+        <h2>Your Cart</h2>
+        <button id="close-cart">✕</button>
+      </div>
+      <div id="cart-items"></div>
+      <div id="cart-footer">
+        <div id="cart-subtotal">Subtotal: $0.00</div>
+        <button id="checkout-btn">Checkout</button>
+      </div>
+    </div>
+
+    <!-- Status Bar (bottom) -->
+    <div id="status-bar">
+      <div id="status-indicator">
+        <span id="status-dot"></span>
+        <span id="status-text">Initializing camera...</span>
+      </div>
+      <button id="toggle-cart">View Cart</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
