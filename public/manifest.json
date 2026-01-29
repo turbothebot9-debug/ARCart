@@ -1,0 +1,86 @@
+{
+  "name": "ARCart - Smart Shopping",
+  "short_name": "ARCart",
+  "description": "AR-powered shopping assistant. Scan products, build your cart, checkout effortlessly.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#4CAF50",
+  "icons": [
+    {
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "/screenshots/scan.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "label": "Scan products with your camera"
+    },
+    {
+      "src": "/screenshots/cart.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "label": "View your cart and checkout"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Scanning",
+      "short_name": "Scan",
+      "description": "Start scanning products",
+      "url": "/",
+      "icons": [{ "src": "/icons/scan-shortcut.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
