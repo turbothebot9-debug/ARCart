@@ -7,6 +7,8 @@ import { ProductRecognizer } from './ml/recognizer.js';
 import { CartManager } from './cart/cartManager.js';
 import { CameraManager } from './utils/camera.js';
 import { UIManager } from './utils/ui.js';
+import { settings } from './utils/settings.js';
+import { feedback } from './utils/feedback.js';
 
 class ARCartApp {
   constructor() {
@@ -22,6 +24,9 @@ class ARCartApp {
 
   async init() {
     try {
+      // Initialize settings first
+      settings.initUI();
+      
       this.ui.setStatus('Initializing camera...', 'loading');
       
       // Start camera
@@ -63,6 +68,9 @@ class ARCartApp {
     // Add to cart
     this.cart.addItem(product);
     
+    // Feedback
+    feedback.barcodeScanned(product);
+    
     // Show popup with barcode indicator
     this.ui.showDetectionPopup(product, 'added');
     this.ui.updateCartDisplay();
@@ -71,11 +79,6 @@ class ARCartApp {
     const sourceLabel = source === 'barcode-local' ? 'Local DB' : 
                        source === 'barcode-api' ? 'Online' : 'New';
     this.ui.setStatus(`Scanned: ${barcode} (${sourceLabel})`, 'ready');
-    
-    // Haptic feedback
-    if (navigator.vibrate) {
-      navigator.vibrate([50, 30, 50]); // Double pulse for barcode
-    }
     
     // Reset status after delay
     setTimeout(() => {
@@ -141,13 +144,12 @@ class ARCartApp {
     
     // Add to cart and show popup
     this.cart.addItem(bestDetection.product);
+    
+    // Feedback
+    feedback.itemAdded(bestDetection.product);
+    
     this.ui.showDetectionPopup(bestDetection.product, 'added');
     this.ui.updateCartDisplay();
-    
-    // Haptic feedback if available
-    if (navigator.vibrate) {
-      navigator.vibrate(50);
-    }
   }
 
   setupEventListeners() {
@@ -170,6 +172,28 @@ class ARCartApp {
     document.getElementById('checkout-btn').addEventListener('click', () => {
       this.handleCheckout();
     });
+
+    // Settings panel
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsPanel = document.getElementById('settings-panel');
+    const closeSettings = document.getElementById('close-settings');
+
+    settingsBtn?.addEventListener('click', () => {
+      settingsPanel?.classList.toggle('hidden');
+    });
+
+    closeSettings?.addEventListener('click', () => {
+      settingsPanel?.classList.add('hidden');
+    });
+
+    // Close settings when clicking outside
+    document.addEventListener('click', (e) => {
+      if (settingsPanel && !settingsPanel.classList.contains('hidden')) {
+        if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+          settingsPanel.classList.add('hidden');
+        }
+      }
+    });
   }
 
   handleCheckout() {
@@ -188,6 +212,7 @@ class ARCartApp {
     );
     
     if (confirmed) {
+      feedback.checkout(total);
       alert('✓ Payment successful!\n\nReceipt sent to your phone.');
       this.cart.clear();
       this.ui.updateCartDisplay();

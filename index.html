@@ -1,20 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>ARCart - Smart Shopping</title>
   <link rel="stylesheet" href="/src/styles.css">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
 </head>
 <body>
   <!-- Camera Feed -->
   <div id="camera-container">
-    <video id="camera-feed" autoplay playsinline></video>
+    <video id="camera-feed" autoplay playsinline muted></video>
     <canvas id="detection-canvas"></canvas>
+    
+    <!-- Scan overlay elements -->
+    <div id="scan-line"></div>
+    <div class="scan-corners">
+      <div class="scan-corner top-left"></div>
+      <div class="scan-corner top-right"></div>
+      <div class="scan-corner bottom-left"></div>
+      <div class="scan-corner bottom-right"></div>
+    </div>
   </div>
 
   <!-- AR Overlay UI -->
   <div id="ar-overlay">
+    <!-- Settings Button (top left) -->
+    <button id="settings-btn" title="Settings">⚙️</button>
+    
     <!-- Cart Summary (top right) -->
     <div id="cart-summary">
       <span id="cart-icon">🛒</span>
@@ -24,24 +41,65 @@
 
     <!-- Detection Popup (center, shows when item detected) -->
     <div id="detection-popup" class="hidden">
-      <div id="detected-product-image"></div>
+      <div id="detected-product-image">📦</div>
       <div id="detected-product-info">
         <div id="detected-product-name">Product Name</div>
         <div id="detected-product-price">$0.00</div>
-        <div id="detected-product-status">✓ Added to cart</div>
+        <div id="detected-product-status">Added to cart</div>
       </div>
     </div>
 
     <!-- Cart Drawer (slides up from bottom) -->
-    <div id="cart-drawer" class="hidden">
+    <div id="cart-drawer">
       <div id="cart-header">
-        <h2>Your Cart</h2>
+        <h2>🛒 Your Cart</h2>
         <button id="close-cart">✕</button>
       </div>
-      <div id="cart-items"></div>
+      <div id="cart-items">
+        <div class="cart-empty">
+          <div class="cart-empty-icon">🛒</div>
+          <div class="cart-empty-text">Your cart is empty<br>Scan products to add them</div>
+        </div>
+      </div>
       <div id="cart-footer">
-        <div id="cart-subtotal">Subtotal: $0.00</div>
-        <button id="checkout-btn">Checkout</button>
+        <div id="cart-subtotal">
+          <span>Subtotal</span>
+          <span class="amount">$0.00</span>
+        </div>
+        <button id="checkout-btn">💳 Checkout</button>
+      </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel" class="hidden">
+      <div id="settings-header">
+        <h2>⚙️ Settings</h2>
+        <button id="close-settings">✕</button>
+      </div>
+      <div id="settings-content">
+        <div class="setting-item">
+          <span>Theme</span>
+          <select id="theme-select">
+            <option value="dark">Dark (AR Optimized)</option>
+            <option value="light">Light</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <span>Sound Effects</span>
+          <input type="checkbox" id="sound-toggle" checked>
+        </div>
+        <div class="setting-item">
+          <span>Voice Announcements</span>
+          <input type="checkbox" id="voice-toggle">
+        </div>
+        <div class="setting-item">
+          <span>Haptic Feedback</span>
+          <input type="checkbox" id="haptic-toggle" checked>
+        </div>
+        <div class="setting-item">
+          <span>Scan Animation</span>
+          <input type="checkbox" id="scan-animation-toggle" checked>
+        </div>
       </div>
     </div>
 
@@ -51,9 +109,18 @@
         <span id="status-dot"></span>
         <span id="status-text">Initializing camera...</span>
       </div>
-      <button id="toggle-cart">View Cart</button>
+      <button id="toggle-cart">📋 View Cart</button>
     </div>
   </div>
+
+  <!-- Audio elements for feedback -->
+  <audio id="sound-add" preload="auto">
+    <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleQwZmdbdp2xdCABc0/THo2kRE4vl7p2CLQBG1frLnHMkDp3v6YuHRABE4PavYmcwMqnz44R5UwNW5PSgVm1BQLT26HuBawpg5/CYTXFVXbzz7HN8fRhl7++STXRZZ8T27XV7hB9w8O+JQnFbdMr46HZ5iidz9u+CMm1bgtH65HV0kTF08/B9J2hdjtX83HFwlzt38/F4H2JglNn71G5snjx69vJzGFxfnN79zGlrpD599vRwFF1hpOD9xWNppUJ+9/RuE19irOH9wF9npUmD+vJpDltks+T9ul1lpE+H+/BmC1hkuef8tFpkpFOL/e5jCFZlv+r7r1hjpFeP/exgBVNlxe37qVZip1uR/ulcAVFmy+/5o1Nip1+V/udYAE9m0PH4nltiqGGX/uVU" type="audio/wav">
+  </audio>
+  
+  <audio id="sound-remove" preload="auto">
+    <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACChZWWlI+GfXJqZ2x1gI6cpq2xt7i2saqfkYJ0aF9ZW2NwhJmpsLu/wL66sKSWhW9fU1JWZH2TprS+xMXGwLessZOBbVxTU2F1jpyrtLq+v7u2raKTgHBoYWZwfouZpq+3urq4s6yiloV4bGZocX2KlqGqsba2tK+pn5OGe3FsbnR/ipSfp62wr66rpaGYjYF4cm91f4iSlZ2jpqeloZ2ak4mAeXV1eX+GjJGXm5yZlo+JgHlwamVjZGlwd3+HjpORjoiBeHFtamtvc3p/goWFg4B6dXFubGxucXV5fH5/fn18eXZ0cnFwcHFydHZ4eXl5eHd2dHNycXFxcnN0dXZ2dnZ1dHRzc3JycnJyc3N0dHR0dHRzc3NzcnJycnJycnNzc3NzdHRzc3NycnJycnJycnNzc3Nzc3NzcnJycnJycnJyc3Nzc3NzdHRzcnJycnJxcXJyc3Nzc3R0dHNycnJxcXFxcnJzc3R0dHV0dHNycnFxcXFxcnJzc3R0dXV1dHNycnFxcXBxcXJyc3N0dHR0dHRzcnJxcXBwcHFxcnJzc3R0dHRzc3Nyc3JxcHBwcXFxcnJzc3R0dHRzc3NycnFxcHBwcXFycnNzc3R0dHNzcnJycXFwcHBxcXJycnNzc3NzcnJycnFxcXBwcXFxcnJyc3NzcnJycnJxcXFwcHBxcXFycnJyc3NycnJycnJxcXFxcXFxcXJycnJycnJycnJycnJxcXFxcXFxcXFycnJycnJycnJycXJxcXFxcXFxcXFxcnJycnJycnJycXFxcXFxcXFxcXFxcXJycnJycnJxcXFxcXFxcXFxcXFxcXFycnJycXJxcXFxcXFxcXFxcXFxcXFxcnJycXFxcXFxcXFxcXFxcXFxcXFxcXFycXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFxcXFx" type="audio/wav">
+  </audio>
 
   <!-- Scripts -->
   <script type="module" src="/src/main.js"></script>
