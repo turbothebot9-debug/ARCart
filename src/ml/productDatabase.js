@@ -5,6 +5,10 @@
 
 export class ProductDatabase {
   constructor() {
+    // Barcode to product mapping
+    // In production, this would use a UPC database API
+    this.barcodeIndex = new Map();
+    
     // Mock product database
     // In production, this would come from a store's API
     this.products = [
@@ -16,7 +20,8 @@ export class ProductDatabase {
         category: 'beverages',
         emoji: '💧',
         keywords: ['water bottle', 'bottle', 'water'],
-        mlClasses: ['water bottle', 'bottle', 'plastic bottle']
+        mlClasses: ['water bottle', 'bottle', 'plastic bottle'],
+        barcodes: ['012000001234', '4052648068025']
       },
       {
         id: 'cola-1',
@@ -25,7 +30,8 @@ export class ProductDatabase {
         category: 'beverages',
         emoji: '🥤',
         keywords: ['soda', 'cola', 'pop', 'coke'],
-        mlClasses: ['bottle', 'pop bottle', 'soda bottle']
+        mlClasses: ['bottle', 'pop bottle', 'soda bottle'],
+        barcodes: ['049000006346', '049000028911']
       },
       {
         id: 'coffee-1',
@@ -34,10 +40,11 @@ export class ProductDatabase {
         category: 'beverages',
         emoji: '☕',
         keywords: ['coffee', 'iced coffee', 'cold brew'],
-        mlClasses: ['cup', 'coffee']
+        mlClasses: ['cup', 'coffee'],
+        barcodes: ['012000171765']
       },
       
-      // Fruits
+      // Fruits (usually no barcodes - sold by weight)
       {
         id: 'banana-1',
         name: 'Organic Banana',
@@ -45,7 +52,8 @@ export class ProductDatabase {
         category: 'produce',
         emoji: '🍌',
         keywords: ['banana'],
-        mlClasses: ['banana']
+        mlClasses: ['banana'],
+        barcodes: ['4011'] // PLU code
       },
       {
         id: 'apple-1',
@@ -54,7 +62,8 @@ export class ProductDatabase {
         category: 'produce',
         emoji: '🍎',
         keywords: ['apple'],
-        mlClasses: ['apple', 'Granny Smith']
+        mlClasses: ['apple', 'Granny Smith'],
+        barcodes: ['3283', '4128'] // PLU codes
       },
       {
         id: 'orange-1',
@@ -63,7 +72,8 @@ export class ProductDatabase {
         category: 'produce',
         emoji: '🍊',
         keywords: ['orange'],
-        mlClasses: ['orange']
+        mlClasses: ['orange'],
+        barcodes: ['3107', '4012'] // PLU codes
       },
       
       // Snacks
@@ -74,7 +84,8 @@ export class ProductDatabase {
         category: 'bakery',
         emoji: '🍩',
         keywords: ['donut', 'doughnut'],
-        mlClasses: ['donut', 'doughnut']
+        mlClasses: ['donut', 'doughnut'],
+        barcodes: []
       },
       {
         id: 'sandwich-1',
@@ -83,7 +94,8 @@ export class ProductDatabase {
         category: 'deli',
         emoji: '🥪',
         keywords: ['sandwich', 'sub'],
-        mlClasses: ['sandwich', 'submarine sandwich']
+        mlClasses: ['sandwich', 'submarine sandwich'],
+        barcodes: []
       },
       {
         id: 'pizza-1',
@@ -92,7 +104,40 @@ export class ProductDatabase {
         category: 'hot food',
         emoji: '🍕',
         keywords: ['pizza'],
-        mlClasses: ['pizza', 'pizza pie']
+        mlClasses: ['pizza', 'pizza pie'],
+        barcodes: []
+      },
+      
+      // Packaged goods with barcodes
+      {
+        id: 'chips-1',
+        name: "Lay's Classic Chips",
+        price: 4.29,
+        category: 'snacks',
+        emoji: '🥔',
+        keywords: ['chips', 'crisps', 'lays'],
+        mlClasses: ['bag', 'packet'],
+        barcodes: ['028400443159', '028400083652']
+      },
+      {
+        id: 'cereal-1',
+        name: 'Cheerios',
+        price: 5.49,
+        category: 'breakfast',
+        emoji: '🥣',
+        keywords: ['cereal', 'cheerios'],
+        mlClasses: ['box', 'carton'],
+        barcodes: ['016000275287', '016000487925']
+      },
+      {
+        id: 'milk-1',
+        name: 'Whole Milk (1 gal)',
+        price: 3.99,
+        category: 'dairy',
+        emoji: '🥛',
+        keywords: ['milk', 'dairy'],
+        mlClasses: ['bottle', 'jug'],
+        barcodes: ['041130007897', '070852993317']
       },
       
       // Other
@@ -103,7 +148,8 @@ export class ProductDatabase {
         category: 'books',
         emoji: '📖',
         keywords: ['book', 'paperback'],
-        mlClasses: ['book', 'notebook']
+        mlClasses: ['book', 'notebook'],
+        barcodes: ['9780140449136'] // ISBN example
       },
       {
         id: 'phone-charger-1',
@@ -112,9 +158,13 @@ export class ProductDatabase {
         category: 'electronics',
         emoji: '🔌',
         keywords: ['charger', 'phone', 'cable'],
-        mlClasses: ['cell phone', 'cellular telephone']
+        mlClasses: ['cell phone', 'cellular telephone'],
+        barcodes: ['190199246591']
       }
     ];
+    
+    // Build barcode index
+    this.buildBarcodeIndex();
     
     // Build index for fast lookup
     this.classIndex = new Map();
@@ -206,15 +256,107 @@ export class ProductDatabase {
       .replace(/\b\w/g, c => c.toUpperCase());
   }
 
+  buildBarcodeIndex() {
+    for (const product of this.products) {
+      for (const barcode of (product.barcodes || [])) {
+        this.barcodeIndex.set(barcode, product);
+      }
+    }
+  }
+
+  /**
+   * Look up a product by barcode
+   */
+  lookupBarcode(barcode) {
+    // Direct match
+    if (this.barcodeIndex.has(barcode)) {
+      return this.barcodeIndex.get(barcode);
+    }
+    
+    // Try without leading zeros
+    const trimmed = barcode.replace(/^0+/, '');
+    if (this.barcodeIndex.has(trimmed)) {
+      return this.barcodeIndex.get(trimmed);
+    }
+    
+    // Try adding leading zero (UPC-A vs EAN-13)
+    const padded = '0' + barcode;
+    if (this.barcodeIndex.has(padded)) {
+      return this.barcodeIndex.get(padded);
+    }
+    
+    return null;
+  }
+
+  /**
+   * Look up product via external UPC database API
+   * (Fallback when not in local database)
+   */
+  async lookupBarcodeOnline(barcode) {
+    try {
+      // Using Open Food Facts API (free, no key required)
+      const response = await fetch(
+        `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
+      );
+      
+      if (!response.ok) return null;
+      
+      const data = await response.json();
+      
+      if (data.status === 1 && data.product) {
+        const p = data.product;
+        return {
+          id: `barcode-${barcode}`,
+          name: p.product_name || p.product_name_en || 'Unknown Product',
+          price: 0.00, // Price not available from Open Food Facts
+          category: p.categories_tags?.[0]?.replace('en:', '') || 'unknown',
+          emoji: '📦',
+          barcode: barcode,
+          brand: p.brands || '',
+          image: p.image_url || null,
+          isFromApi: true,
+          needsPricing: true
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn('Barcode API lookup failed:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Create unknown product from barcode
+   */
+  createUnknownBarcodeProduct(barcode) {
+    return {
+      id: `unknown-barcode-${barcode}`,
+      name: `Product (${barcode})`,
+      price: 0.00,
+      category: 'unknown',
+      emoji: '📦',
+      barcode: barcode,
+      isUnknown: true,
+      needsPricing: true
+    };
+  }
+
   addProduct(product) {
     this.products.push(product);
-    // Update index
+    
+    // Update ML class index
     for (const mlClass of (product.mlClasses || [])) {
       const key = mlClass.toLowerCase();
       if (!this.classIndex.has(key)) {
         this.classIndex.set(key, []);
       }
       this.classIndex.get(key).push(product);
+    }
+    
+    // Update barcode index
+    for (const barcode of (product.barcodes || [])) {
+      this.barcodeIndex.set(barcode, product);
     }
   }
 

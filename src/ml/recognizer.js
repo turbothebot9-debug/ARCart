@@ -2,19 +2,27 @@
  * Product Recognizer - ML-based product detection
  * Uses TensorFlow.js with MobileNet for classification
  * and COCO-SSD for object detection
+ * Falls back to barcode scanning when ML is uncertain
  */
 
 import * as tf from '@tensorflow/tfjs';
 import * as mobilenet from '@tensorflow-models/mobilenet';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import { ProductDatabase } from './productDatabase.js';
+import { BarcodeScanner } from './barcodeScanner.js';
 
 export class ProductRecognizer {
   constructor() {
     this.mobilenetModel = null;
     this.cocoModel = null;
+    this.barcodeScanner = new BarcodeScanner();
     this.productDb = new ProductDatabase();
     this.isLoaded = false;
+    this.barcodeEnabled = true;
+    
+    // Track recent barcode scans to avoid duplicates
+    this.recentBarcodes = new Map();
+    this.barcodeCooldownMs = 5000;
   }
 
   async loadModel() {
@@ -31,6 +39,95 @@ export class ProductRecognizer {
     this.isLoaded = true;
     
     console.log('Models loaded successfully');
+  }
+
+  /**
+   * Process a barcode detection
+   */
+  async processBarcode(barcodeData) {
+    const { code, format } = barcodeData;
+    
+    // Check cooldown
+    const now = Date.now();
+    if (this.recentBarcodes.has(code)) {
+      const lastScan = this.recentBarcodes.get(code);
+      if (now - lastScan < this.barcodeCooldownMs) {
+        return null;
+      }
+    }
+    this.recentBarcodes.set(code, now);
+    
+    // Clean up old entries
+    for (const [barcode, timestamp] of this.recentBarcodes) {
+      if (now - timestamp > this.barcodeCooldownMs * 2) {
+        this.recentBarcodes.delete(barcode);
+      }
+    }
+    
+    // Look up in local database first
+    let product = this.productDb.lookupBarcode(code);
+    
+    if (product) {
+      console.log(`Barcode ${code} matched local product: ${product.name}`);
+      return {
+        product: product,
+        confidence: 1.0, // Barcode = exact match
+        source: 'barcode-local',
+        barcode: code,
+        format: format
+      };
+    }
+    
+    // Try online lookup
+    product = await this.productDb.lookupBarcodeOnline(code);
+    
+    if (product) {
+      console.log(`Barcode ${code} found via API: ${product.name}`);
+      // Add to local database for future lookups
+      this.productDb.addProduct({
+        ...product,
+        barcodes: [code]
+      });
+      return {
+        product: product,
+        confidence: 0.95,
+        source: 'barcode-api',
+        barcode: code,
+        format: format
+      };
+    }
+    
+    // Unknown barcode - create placeholder
+    console.log(`Barcode ${code} not found, creating placeholder`);
+    product = this.productDb.createUnknownBarcodeProduct(code);
+    
+    return {
+      product: product,
+      confidence: 0.8,
+      source: 'barcode-unknown',
+      barcode: code,
+      format: format
+    };
+  }
+
+  /**
+   * Start continuous barcode scanning alongside ML detection
+   */
+  startBarcodeScanning(videoElement, onDetect) {
+    if (!this.barcodeEnabled) return;
+    
+    this.barcodeScanner.start(videoElement, async (barcodeData) => {
+      const result = await this.processBarcode(barcodeData);
+      if (result && onDetect) {
+        onDetect(result);
+      }
+    }).catch(err => {
+      console.warn('Barcode scanner failed to start:', err);
+    });
+  }
+
+  stopBarcodeScanning() {
+    this.barcodeScanner.stop();
   }
 
   async detect(imageElement) {

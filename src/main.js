@@ -32,10 +32,13 @@ class ARCartApp {
       // Load ML model
       await this.recognizer.loadModel();
       
-      this.ui.setStatus('Ready - Point at products', 'ready');
+      this.ui.setStatus('Ready - Point at products or barcodes', 'ready');
       
-      // Start detection loop
+      // Start detection loop (ML-based)
       this.startDetectionLoop();
+      
+      // Start barcode scanning (runs in parallel)
+      this.startBarcodeScanning();
       
       // Setup event listeners
       this.setupEventListeners();
@@ -44,6 +47,40 @@ class ARCartApp {
       console.error('Initialization error:', error);
       this.ui.setStatus(`Error: ${error.message}`, 'error');
     }
+  }
+
+  startBarcodeScanning() {
+    const videoElement = document.getElementById('camera-feed');
+    
+    this.recognizer.startBarcodeScanning(videoElement, (detection) => {
+      this.handleBarcodeDetection(detection);
+    });
+  }
+
+  handleBarcodeDetection(detection) {
+    const { product, source, barcode } = detection;
+    
+    // Add to cart
+    this.cart.addItem(product);
+    
+    // Show popup with barcode indicator
+    this.ui.showDetectionPopup(product, 'added');
+    this.ui.updateCartDisplay();
+    
+    // Update status to show barcode was scanned
+    const sourceLabel = source === 'barcode-local' ? 'Local DB' : 
+                       source === 'barcode-api' ? 'Online' : 'New';
+    this.ui.setStatus(`Scanned: ${barcode} (${sourceLabel})`, 'ready');
+    
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate([50, 30, 50]); // Double pulse for barcode
+    }
+    
+    // Reset status after delay
+    setTimeout(() => {
+      this.ui.setStatus('Ready - Point at products or barcodes', 'ready');
+    }, 2000);
   }
 
   startDetectionLoop() {
