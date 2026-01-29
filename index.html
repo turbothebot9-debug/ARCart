@@ -2,19 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ARCart - Smart Shopping</title>
   <link rel="stylesheet" href="/src/styles.css">
 </head>
 <body>
   <!-- Camera Feed -->
   <div id="camera-container">
-    <video id="camera-feed" autoplay playsinline></video>
+    <video id="camera-feed" autoplay playsinline muted></video>
     <canvas id="detection-canvas"></canvas>
   </div>
 
   <!-- AR Overlay UI -->
   <div id="ar-overlay">
+    <!-- History Button (top left) -->
+    <button id="history-btn" title="Purchase History">🧾</button>
+    
     <!-- Cart Summary (top right) -->
     <div id="cart-summary">
       <span id="cart-icon">🛒</span>
@@ -22,9 +25,71 @@
       <div id="cart-total">$0.00</div>
     </div>
 
+    <!-- Purchase History Panel -->
+    <div id="history-panel" class="hidden">
+      <div class="panel-header">
+        <h2>🧾 Purchase History</h2>
+        <button class="close-panel" id="close-history">✕</button>
+      </div>
+      
+      <!-- Stats Summary -->
+      <div class="history-stats">
+        <div class="stat-item">
+          <span class="stat-value" id="stat-total-spent">$0.00</span>
+          <span class="stat-label">Total Spent</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-purchase-count">0</span>
+          <span class="stat-label">Purchases</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-avg-purchase">$0.00</span>
+          <span class="stat-label">Average</span>
+        </div>
+      </div>
+      
+      <!-- Tab Navigation -->
+      <div class="history-tabs">
+        <button class="tab-btn active" data-tab="recent">Recent</button>
+        <button class="tab-btn" data-tab="receipts">Receipts</button>
+        <button class="tab-btn" data-tab="stats">Stats</button>
+      </div>
+      
+      <!-- Tab Content -->
+      <div id="history-content">
+        <!-- Recent tab -->
+        <div class="tab-content active" id="tab-recent">
+          <div class="history-list" id="recent-purchases">
+            <div class="history-empty">
+              <div class="history-empty-icon">🧾</div>
+              <div class="history-empty-text">No purchases yet<br>Your receipts will appear here</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Receipts tab -->
+        <div class="tab-content" id="tab-receipts">
+          <div class="receipt-viewer" id="receipt-viewer">
+            <p class="select-receipt-hint">Select a purchase to view receipt</p>
+          </div>
+        </div>
+        
+        <!-- Stats tab -->
+        <div class="tab-content" id="tab-stats">
+          <div class="stats-content">
+            <h3>Most Bought Items</h3>
+            <div id="most-bought-list" class="most-bought-list"></div>
+            
+            <h3>Spending by Category</h3>
+            <div id="category-spending" class="category-spending"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Detection Popup (center, shows when item detected) -->
     <div id="detection-popup" class="hidden">
-      <div id="detected-product-image"></div>
+      <div id="detected-product-image">📦</div>
       <div id="detected-product-info">
         <div id="detected-product-name">Product Name</div>
         <div id="detected-product-price">$0.00</div>
@@ -32,16 +97,39 @@
       </div>
     </div>
 
+    <!-- Receipt Modal -->
+    <div id="receipt-modal" class="hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>🧾 Receipt</h2>
+          <button id="close-receipt-modal">✕</button>
+        </div>
+        <pre id="receipt-text"></pre>
+        <div class="modal-actions">
+          <button id="share-receipt" class="btn-primary">📤 Share</button>
+          <button id="copy-receipt" class="btn-secondary">📋 Copy</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Cart Drawer (slides up from bottom) -->
-    <div id="cart-drawer" class="hidden">
+    <div id="cart-drawer">
       <div id="cart-header">
-        <h2>Your Cart</h2>
+        <h2>🛒 Your Cart</h2>
         <button id="close-cart">✕</button>
       </div>
-      <div id="cart-items"></div>
+      <div id="cart-items">
+        <div class="cart-empty">
+          <div class="cart-empty-icon">🛒</div>
+          <div class="cart-empty-text">Your cart is empty<br>Scan products to add them</div>
+        </div>
+      </div>
       <div id="cart-footer">
-        <div id="cart-subtotal">Subtotal: $0.00</div>
-        <button id="checkout-btn">Checkout</button>
+        <div id="cart-subtotal">
+          <span>Subtotal</span>
+          <span class="amount">$0.00</span>
+        </div>
+        <button id="checkout-btn">💳 Checkout</button>
       </div>
     </div>
 
@@ -51,7 +139,7 @@
         <span id="status-dot"></span>
         <span id="status-text">Initializing camera...</span>
       </div>
-      <button id="toggle-cart">View Cart</button>
+      <button id="toggle-cart">📋 View Cart</button>
     </div>
   </div>
 
