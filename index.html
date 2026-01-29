@@ -2,19 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ARCart - Smart Shopping</title>
   <link rel="stylesheet" href="/src/styles.css">
 </head>
 <body>
   <!-- Camera Feed -->
   <div id="camera-container">
-    <video id="camera-feed" autoplay playsinline></video>
+    <video id="camera-feed" autoplay playsinline muted></video>
     <canvas id="detection-canvas"></canvas>
   </div>
 
   <!-- AR Overlay UI -->
   <div id="ar-overlay">
+    <!-- Shopping List Button (top left) -->
+    <button id="list-btn" title="Shopping List">📋</button>
+    
     <!-- Cart Summary (top right) -->
     <div id="cart-summary">
       <span id="cart-icon">🛒</span>
@@ -22,26 +25,75 @@
       <div id="cart-total">$0.00</div>
     </div>
 
+    <!-- Shopping List Panel -->
+    <div id="shopping-list-panel" class="hidden">
+      <div class="panel-header">
+        <h2>📋 Shopping List</h2>
+        <button class="close-panel">✕</button>
+      </div>
+      
+      <div class="list-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 0%"></div>
+        </div>
+        <span class="progress-text">0 of 0 items found</span>
+      </div>
+      
+      <div class="add-item-form">
+        <input type="text" id="new-list-item" placeholder="Add item to list..." maxlength="50">
+        <button id="add-list-item">+</button>
+      </div>
+      
+      <div id="shopping-list-items">
+        <div class="list-empty">
+          <div class="list-empty-icon">📝</div>
+          <div class="list-empty-text">Your list is empty<br>Add items you want to find</div>
+        </div>
+      </div>
+      
+      <div class="list-actions">
+        <button id="clear-found-btn" class="btn-secondary">Clear Found</button>
+        <button id="clear-list-btn" class="btn-danger">Clear All</button>
+      </div>
+    </div>
+
     <!-- Detection Popup (center, shows when item detected) -->
     <div id="detection-popup" class="hidden">
-      <div id="detected-product-image"></div>
+      <div id="detected-product-image">📦</div>
       <div id="detected-product-info">
         <div id="detected-product-name">Product Name</div>
         <div id="detected-product-price">$0.00</div>
-        <div id="detected-product-status">✓ Added to cart</div>
+        <div id="detected-product-status">Added to cart</div>
+      </div>
+    </div>
+
+    <!-- List Item Found Notification -->
+    <div id="list-found-popup" class="hidden">
+      <div class="found-icon">✓</div>
+      <div class="found-text">
+        <div class="found-title">Found from your list!</div>
+        <div class="found-item-name"></div>
       </div>
     </div>
 
     <!-- Cart Drawer (slides up from bottom) -->
-    <div id="cart-drawer" class="hidden">
+    <div id="cart-drawer">
       <div id="cart-header">
-        <h2>Your Cart</h2>
+        <h2>🛒 Your Cart</h2>
         <button id="close-cart">✕</button>
       </div>
-      <div id="cart-items"></div>
+      <div id="cart-items">
+        <div class="cart-empty">
+          <div class="cart-empty-icon">🛒</div>
+          <div class="cart-empty-text">Your cart is empty<br>Scan products to add them</div>
+        </div>
+      </div>
       <div id="cart-footer">
-        <div id="cart-subtotal">Subtotal: $0.00</div>
-        <button id="checkout-btn">Checkout</button>
+        <div id="cart-subtotal">
+          <span>Subtotal</span>
+          <span class="amount">$0.00</span>
+        </div>
+        <button id="checkout-btn">💳 Checkout</button>
       </div>
     </div>
 
@@ -51,7 +103,7 @@
         <span id="status-dot"></span>
         <span id="status-text">Initializing camera...</span>
       </div>
-      <button id="toggle-cart">View Cart</button>
+      <button id="toggle-cart">📋 View Cart</button>
     </div>
   </div>
 

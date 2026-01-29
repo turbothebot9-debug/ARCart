@@ -7,6 +7,7 @@ import { ProductRecognizer } from './ml/recognizer.js';
 import { CartManager } from './cart/cartManager.js';
 import { CameraManager } from './utils/camera.js';
 import { UIManager } from './utils/ui.js';
+import { shoppingList } from './utils/shoppingList.js';
 
 class ARCartApp {
   constructor() {
@@ -34,6 +35,9 @@ class ARCartApp {
       
       this.ui.setStatus('Ready - Point at products or barcodes', 'ready');
       
+      // Initialize shopping list UI
+      this.initShoppingListUI();
+      
       // Start detection loop (ML-based)
       this.startDetectionLoop();
       
@@ -49,6 +53,125 @@ class ARCartApp {
     }
   }
 
+  initShoppingListUI() {
+    this.updateShoppingListDisplay();
+    
+    // List button toggle
+    const listBtn = document.getElementById('list-btn');
+    const listPanel = document.getElementById('shopping-list-panel');
+    const closePanel = listPanel?.querySelector('.close-panel');
+    
+    listBtn?.addEventListener('click', () => {
+      listPanel?.classList.toggle('hidden');
+    });
+    
+    closePanel?.addEventListener('click', () => {
+      listPanel?.classList.add('hidden');
+    });
+    
+    // Add item form
+    const addBtn = document.getElementById('add-list-item');
+    const input = document.getElementById('new-list-item');
+    
+    const addItem = () => {
+      const name = input?.value.trim();
+      if (name) {
+        shoppingList.addItem(name);
+        input.value = '';
+        this.updateShoppingListDisplay();
+      }
+    };
+    
+    addBtn?.addEventListener('click', addItem);
+    input?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addItem();
+    });
+    
+    // Clear buttons
+    document.getElementById('clear-found-btn')?.addEventListener('click', () => {
+      shoppingList.clearFound();
+      this.updateShoppingListDisplay();
+    });
+    
+    document.getElementById('clear-list-btn')?.addEventListener('click', () => {
+      if (confirm('Clear entire shopping list?')) {
+        shoppingList.clear();
+        this.updateShoppingListDisplay();
+      }
+    });
+    
+    // Update button indicator
+    this.updateListButtonIndicator();
+  }
+
+  updateShoppingListDisplay() {
+    const container = document.getElementById('shopping-list-items');
+    if (!container) return;
+    
+    const items = shoppingList.getItems();
+    const progress = shoppingList.getProgress();
+    
+    // Update progress bar
+    const progressFill = document.querySelector('.progress-fill');
+    const progressText = document.querySelector('.progress-text');
+    
+    if (progressFill) progressFill.style.width = `${progress.percentage}%`;
+    if (progressText) progressText.textContent = `${progress.found} of ${progress.total} items found`;
+    
+    // Update list
+    if (items.length === 0) {
+      container.innerHTML = `
+        <div class="list-empty">
+          <div class="list-empty-icon">📝</div>
+          <div class="list-empty-text">Your list is empty<br>Add items you want to find</div>
+        </div>
+      `;
+    } else {
+      container.innerHTML = items.map(item => `
+        <div class="list-item ${item.found ? 'found' : ''}" data-id="${item.id}">
+          <div class="list-item-checkbox"></div>
+          <span class="list-item-name">${this.escapeHtml(item.name)}${item.quantity > 1 ? ` (x${item.quantity})` : ''}</span>
+          <button class="list-item-remove">✕</button>
+        </div>
+      `).join('');
+      
+      // Add click handlers
+      container.querySelectorAll('.list-item').forEach(el => {
+        const id = el.dataset.id;
+        
+        el.querySelector('.list-item-checkbox')?.addEventListener('click', () => {
+          shoppingList.toggleFound(id);
+          this.updateShoppingListDisplay();
+        });
+        
+        el.querySelector('.list-item-remove')?.addEventListener('click', () => {
+          shoppingList.removeItem(id);
+          this.updateShoppingListDisplay();
+        });
+      });
+    }
+    
+    this.updateListButtonIndicator();
+  }
+
+  updateListButtonIndicator() {
+    const listBtn = document.getElementById('list-btn');
+    if (!listBtn) return;
+    
+    const unfound = shoppingList.getUnfoundItems();
+    if (unfound.length > 0) {
+      listBtn.classList.add('has-items');
+    } else {
+      listBtn.classList.remove('has-items');
+    }
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   startBarcodeScanning() {
     const videoElement = document.getElementById('camera-feed');
     
@@ -59,6 +182,9 @@ class ARCartApp {
 
   handleBarcodeDetection(detection) {
     const { product, source, barcode } = detection;
+    
+    // Check if this matches something on our shopping list
+    this.checkShoppingListMatch(product.name);
     
     // Add to cart
     this.cart.addItem(product);
@@ -81,6 +207,38 @@ class ARCartApp {
     setTimeout(() => {
       this.ui.setStatus('Ready - Point at products or barcodes', 'ready');
     }, 2000);
+  }
+
+  checkShoppingListMatch(productName) {
+    const matchedItem = shoppingList.matchProduct(productName);
+    
+    if (matchedItem && !matchedItem.found) {
+      // Mark as found
+      shoppingList.markFound(matchedItem.id);
+      this.updateShoppingListDisplay();
+      
+      // Show found notification
+      this.showListFoundPopup(matchedItem.name);
+    }
+  }
+
+  showListFoundPopup(itemName) {
+    const popup = document.getElementById('list-found-popup');
+    const nameEl = popup?.querySelector('.found-item-name');
+    
+    if (popup && nameEl) {
+      nameEl.textContent = itemName;
+      popup.classList.remove('hidden');
+      
+      // Extra haptic for list item found
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100]);
+      }
+      
+      setTimeout(() => {
+        popup.classList.add('hidden');
+      }, 3000);
+    }
   }
 
   startDetectionLoop() {
@@ -138,6 +296,9 @@ class ARCartApp {
       product: bestDetection.product,
       timestamp: now
     };
+    
+    // Check shopping list match
+    this.checkShoppingListMatch(bestDetection.product.name);
     
     // Add to cart and show popup
     this.cart.addItem(bestDetection.product);
