@@ -30,7 +30,7 @@ class ARCartApp {
       this.ui.setStatus('Loading ML model...', 'loading');
       
       // Load ML model
-      await this.recognizer.loadModel();
+      await this.recognizer.initialize();
       
       this.ui.setStatus('Ready - Point at products or barcodes', 'ready');
       
