@@ -16,9 +16,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-# Paths
-MODEL_PATH = Path(__file__).parent.parent / "ml-training/models/product_model.pt"
-CLASSES_PATH = Path(__file__).parent.parent / "ml-training/models/class_names.json"
+# Paths (Production model with 85.3% accuracy - EfficientNetV2-S)
+MODEL_PATH = Path(__file__).parent.parent / "ml-training/models/product_model_production.pt"
+CLASSES_PATH = Path(__file__).parent.parent / "ml-training/models/class_names_production.json"
 
 # Load model and classes
 print("Loading model...")

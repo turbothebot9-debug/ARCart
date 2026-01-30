@@ -4,3 +4,19 @@ dist/
 *.log
 .env
 .env.local
+
+# ML training data (too large for git)
+ml-training/data/
+ml-training/models/*.pt
+ml-training/models/*.pth
+*.npy
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Server runtime
+server/embeddings/
