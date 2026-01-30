@@ -17,7 +17,7 @@ class ARCartApp {
     
     this.isProcessing = false;
     this.lastDetection = null;
-    this.detectionCooldown = 2000; // ms between same-product detections
+    this.detectionCooldown = 5000; // ms between same-product detections (5 sec)
   }
 
   async init() {
@@ -112,21 +112,36 @@ class ARCartApp {
     // Clear previous boxes
     this.ui.clearDetectionBoxes();
     
-    if (detections.length === 0) return;
+    if (detections.length === 0) {
+      this.recentDetections = []; // Reset stability tracker
+      return;
+    }
     
     // Get the highest confidence detection
     const bestDetection = detections.reduce((best, current) => 
       current.confidence > best.confidence ? current : best
     );
     
-    // Only process if confidence is high enough
+    // Only process if confidence is high enough (raised from 0.35)
     console.log('Detection:', bestDetection.product?.name, 'confidence:', bestDetection.confidence);
-    if (bestDetection.confidence < 0.35) return;
+    if (bestDetection.confidence < 0.65) return;
     
-    // Draw bounding box
+    // Draw bounding box (shows what we're tracking)
     this.ui.drawDetectionBox(bestDetection);
     
-    // Check cooldown for same product
+    // Stability check: track recent detections
+    if (!this.recentDetections) this.recentDetections = [];
+    this.recentDetections.push(bestDetection.product.name);
+    if (this.recentDetections.length > 5) this.recentDetections.shift();
+    
+    // Require same product detected 3+ times in last 5 frames
+    const productCount = this.recentDetections.filter(n => n === bestDetection.product.name).length;
+    if (productCount < 3) {
+      console.log(`Stability check: ${bestDetection.product.name} seen ${productCount}/3 times`);
+      return;
+    }
+    
+    // Check cooldown for same product (5 seconds)
     const now = Date.now();
     if (this.lastDetection && 
         this.lastDetection.product.id === bestDetection.product.id &&
@@ -134,11 +149,13 @@ class ARCartApp {
       return;
     }
     
-    // Product detected!
+    // Product confirmed!
+    console.log(`✅ CONFIRMED: ${bestDetection.product.name} (${productCount}/5 stable, ${(bestDetection.confidence * 100).toFixed(1)}%)`);
     this.lastDetection = {
       product: bestDetection.product,
       timestamp: now
     };
+    this.recentDetections = []; // Reset after adding
     
     // Add to cart and show popup
     this.cart.addItem(bestDetection.product);
