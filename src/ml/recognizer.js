@@ -31,9 +31,11 @@ export class ProductRecognizer {
             
             this.ready = true;
             console.log(`ProductRecognizer ready with ${this.classes.length} classes`);
+            console.log('API URL:', API_URL);
             return true;
         } catch (error) {
-            console.warn('Custom model API not available, running in barcode-only mode:', error.message);
+            console.error('API initialization failed:', error);
+            console.log('Tried API URL:', API_URL);
             this.ready = false;
             return true; // Still allow app to run with barcodes only
         }
@@ -46,13 +48,15 @@ export class ProductRecognizer {
 
     async detect(videoElement) {
         if (!this.ready) {
+            console.log('Recognizer not ready!');
             return []; // No ML detection without API
         }
 
         try {
             const result = await this.recognize(videoElement);
+            console.log('Recognition result:', result);
             
-            if (result.confidence > 0.3) {
+            if (result.confidence > 0.2) {
                 return [{
                     product: {
                         id: result.category,
