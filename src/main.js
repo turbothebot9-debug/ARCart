@@ -120,7 +120,8 @@ class ARCartApp {
     );
     
     // Only process if confidence is high enough
-    if (bestDetection.confidence < 0.6) return;
+    console.log('Detection:', bestDetection.product?.name, 'confidence:', bestDetection.confidence);
+    if (bestDetection.confidence < 0.35) return;
     
     // Draw bounding box
     this.ui.drawDetectionBox(bestDetection);

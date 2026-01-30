@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>The Kroger Family of Companies - Page Not Found</title>
+		<link href="/_errors/images/application-site.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="https://assets.adobedtm.com/5b62a4686de413bb78d18e54ea62461ac9cf5893/satelliteLib-0b077667ec685cd85f99d92cf0324b7ba35326f5.js"></script>
+	</head>
+	<body id="fourOhFourNotFound">
+		<div id="grid-wrap">
+			<div id="notFound">
+				<div>
+					<h1>Error</h1>
+					<h2>Oops, we seem to have a bad link.</h2>
+					<p>Click <a onclick="window.history.back()">BACK</a> in your browser or select your store below.</p>
+					<div class="storesList">
+						<div class="kroger-family"><a href="http://www.kroger.com"><img alt="Kroger Family of Companies" src="/_errors/images/kroger.png"></a>
+						</div>
+						<div class="logo-wrapper">
+							<div class="storeLogo"><a href="https://www.8451.com/"><img alt="84.51" src="/_errors/images/8451.png"></a></div>
+							<div class="storeLogo"><a href="https://www.bakersplus.com/"><img alt="Bakers" src="/_errors/images/bakers.png"></a></div>
+							<div class="storeLogo"><a href="https://www.citymarket.com/"><img alt="City Market" src="/_errors/images/citymarket.png"></a></div>
+							<div class="storeLogo"><a href="https://www.dillons.com/"><img alt="Dillon&#39;s" src="/_errors/images/dillons.png"></a></div>
+							<div class="storeLogo"><a href="https://www.food4less.com/"><img alt="Food4Less" src="/_errors/images/food4less.png"></a></div>
+							<div class="storeLogo"><a href="https://www.foodsco.net/"><img alt="FoodsCo" src="/_errors/images/foodsco.png"></a></div>
+							<div class="storeLogo"><a href="https://www.fredmeyer.com/"><img alt="Fred Meyer" src="/_errors/images/fredmeyer.png"></a></div>
+							<div class="storeLogo"><a href="https://www.fredmeyerjewelers.com/"><img alt="Fred Meyer Jewelers" src="/_errors/images/fredmeyerjewelers.png"></a></div>
+							<div class="storeLogo"><a href="https://www.frysfood.com/"><img alt="Fry&#39;s" src="/_errors/images/frysfood.png"></a></div>
+							<div class="storeLogo"><a href="https://www.gerbes.com/"><img alt="Gerbes" src="/_errors/images/gerbes.png"></a></div>
+							<div class="storeLogo"><a href="https://www.harristeeter.com/"><img alt="Harris Teeter" src="/_errors/images/harristeeter.png"></a></div>
+							<div class="storeLogo"><img alt="Home Chef" src="/_errors/images/homechef.png"></div>
+							<div class="storeLogo"><a href="https://www.jaycfoods.com/"><img alt="JayC" src="/_errors/images/jayc.png"></a></div>
+							<div class="storeLogo"><a href="https://www.kingsoopers.com/"><img alt="King Soopers" src="/_errors/images/kingsoopers.png"></a></div>
+							<div class="storeLogo"><a href="https://www.kroger.com/b/ourbrands"><img alt="Kroger Our Brands" src="/_errors/images/krogerbrands.png"></a></div>
+							<div class="storeLogo"><img alt="Kroger Personal Finance" src="/_errors/images/krogerpersonalfinance.png"></div>
+							<div class="storeLogo"><a href="https://www.krogerspecialtypharmacy.com/"><img alt="Kroger Specialty Pharmacy" src="/_errors/images/krogerspecialtypharmacy.png"></a></div>
+							<div class="storeLogo"><a href="https://www.marianos.com/"><img alt="Marianos" src="/_errors/images/marianos.png"></a></div>
+							<div class="storeLogo"><a href="https://www.metromarket.net/"><img alt="Metro Market" src="/_errors/images/metromarket.png"></a></div>
+							<div class="storeLogo"><a href="https://www.owensmarket.com/"><img alt="Owens" src="/_errors/images/owensmarket.png"></a></div>
+							<div class="storeLogo"><a href="https://www.pay-less.com/"><img alt="Pay Less" src="/_errors/images/payless.png"></a></div>
+							<div class="storeLogo"><a href="https://www.picknsave.com/"><img alt="Pick n Save" src="/_errors/images/picknsave.png"></a></div>
+							<div class="storeLogo"><a href="https://www.qfc.com/"><img alt="QFC" src="/_errors/images/qfc.png"></a></div>
+							<div class="storeLogo"><a href="https://www.ralphs.com/"><img alt="Ralph&#39;s" src="/_errors/images/ralphs.png"></a></div>
+							<div class="storeLogo"><a href="https://www.roundys.com/"><img alt="Roundy&#39;s" src="/_errors/images/roundys.png"></a></div>
+							<div class="storeLogo"><a href="https://www.rulerfoods.com/"><img alt="Ruler Foods" src="/_errors/images/rulerfoods.png"></a></div>
+							<div class="storeLogo"><a href="https://www.smithsfoodanddrug.com/"><img alt="Smith&#39;s" src="/_errors/images/smiths.png"></a></div>
+							<div class="storeLogo"><a href="https://www.thelittleclinic.com/"><img alt="The Little Clinic" src="/_errors/images/thelittleclinic.png"></a></div>
+							<div class="storeLogo"><a href="https://www.vitacost.com/"><img alt="Vitacost" src="/_errors/images/vitacost.png"></a></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="/_errors/js/kroger-usage-metrics.js"></script>
+		<script>
+			krogerUsageMetrics.vanillaUsageMetrics({
+				transforms: { "transformVersion": "1.2.3",
+					scenarios: [{
+						name: "browser_request_error",
+						modifiers: {
+							errorEvent: () => {
+								return {
+									trigger: true
+								}
+							},
+						}
+					}]
+				}
+			});
+			krogerUsageMetrics.vanillaUsageMetrics.processActivity("errorEvent", {
+				scenarioName: "browser_request_error",
+				usageContext: "browser request error",
+				componentName: "static-404-app",
+				errors: [{
+					errorCategory: "browser request",
+					errorDescription: "we're experiencing technical difficulties",
+					errorEndpoint: document.referrer == "" ? "no relevant value" : document.referrer,
+					errorResponseCode: "404-app"
+				}],
+			});
+		</script>
+		<script data-qa-dtm-footer-script="true">try{_satellite.pageBottom()}catch(e){try{window.console.error("DTM error, _satellite not loaded: ",e)}catch(c){}}</script>
+	</body>
+</html>
