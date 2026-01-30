@@ -4,7 +4,10 @@
 
 import { BarcodeScanner } from './barcodeScanner.js';
 
-const API_URL = 'http://localhost:8000';
+// Auto-detect: if running on the server itself, use localhost; otherwise use server IP
+const API_URL = window.location.hostname === '192.168.1.81' 
+    ? 'http://localhost:8000' 
+    : 'http://192.168.1.81:8000';
 
 export class ProductRecognizer {
     constructor() {
@@ -93,12 +96,13 @@ export class ProductRecognizer {
             const result = await response.json();
             
             return {
-                name: this.formatCategoryName(result.category),
+                name: result.predicted_class || 'Unknown',
                 confidence: result.confidence,
-                category: result.category,
-                topPredictions: result.top_predictions.map(p => ({
-                    name: this.formatCategoryName(p.category),
-                    confidence: p.confidence
+                category: result.top_predictions?.[0]?.category || 'unknown',
+                topPredictions: (result.top_predictions || []).map(p => ({
+                    name: p.label,
+                    confidence: p.score,
+                    category: p.category
                 }))
             };
         } catch (error) {
