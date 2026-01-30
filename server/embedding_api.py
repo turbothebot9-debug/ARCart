@@ -107,6 +107,13 @@ async def health():
     return {"status": "healthy", "products": len(matcher.db.products)}
 
 
+@app.get("/classes")
+async def get_classes():
+    """Return list of product categories for frontend compatibility."""
+    stats = matcher.get_stats()
+    return {"classes": stats['categories']}
+
+
 @app.get("/stats", response_model=StatsResponse)
 async def get_stats():
     stats = matcher.get_stats()
