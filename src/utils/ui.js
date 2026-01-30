@@ -121,11 +121,18 @@ export class UIManager {
     const canvas = this.elements.detectionCanvas;
     const video = document.getElementById('camera-feed');
     
+    // Check if we have bounding box data (category classifiers don't provide this)
+    const box = detection.boundingBox || detection.bbox;
+    if (!box) {
+      // No bounding box - just show floating label in center-bottom
+      this.showFloatingLabel(detection);
+      return;
+    }
+    
     // Scale bounding box to canvas size
     const scaleX = canvas.width / video.videoWidth;
     const scaleY = canvas.height / video.videoHeight;
     
-    const box = detection.boundingBox;
     const x = box.x * scaleX;
     const y = box.y * scaleY;
     const width = box.width * scaleX;
@@ -152,5 +159,33 @@ export class UIManager {
   clearDetectionBoxes() {
     const canvas = this.elements.detectionCanvas;
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  showFloatingLabel(detection) {
+    const canvas = this.elements.detectionCanvas;
+    
+    // Draw centered label at bottom of screen (for classifiers without bbox)
+    const label = `${detection.product.name} - $${detection.product.price.toFixed(2)}`;
+    const confidence = `${Math.round(detection.confidence * 100)}% confidence`;
+    
+    this.ctx.font = 'bold 18px sans-serif';
+    const labelWidth = this.ctx.measureText(label).width;
+    const x = (canvas.width - labelWidth - 24) / 2;
+    const y = canvas.height - 60;
+    
+    // Draw pill-shaped background
+    this.ctx.fillStyle = 'rgba(76, 175, 80, 0.9)';
+    this.ctx.beginPath();
+    this.ctx.roundRect(x, y, labelWidth + 24, 50, 12);
+    this.ctx.fill();
+    
+    // Draw label text
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.fillText(label, x + 12, y + 22);
+    
+    // Draw confidence
+    this.ctx.font = '12px sans-serif';
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    this.ctx.fillText(confidence, x + 12, y + 40);
   }
 }
